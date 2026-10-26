@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberSentry AI | Security Log Analyzer</title>
+<style>
+:root {
+  --bg:#0b1120; --panel:#131d30; --border:#26354c;
+  --text:#e8eef8; --muted:#96a7c0; --green:#38d9a9;
+  --red:#ff647c; --yellow:#ffd166; --blue:#69a7ff;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:Arial,Helvetica,sans-serif; line-height:1.5;
+}
+header {
+  padding:22px 5%; border-bottom:1px solid var(--border);
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:12px;
+}
+.brand { font-size:23px; font-weight:bold; }
+.brand span { color:var(--green); }
+.badge {
+  border:1px solid #286e60; color:var(--green);
+  padding:6px 10px; border-radius:20px; font-size:12px;
+}
+main { max-width:1200px; margin:auto; padding:28px 20px; }
+.intro { margin-bottom:24px; }
+h1 { font-size:30px; margin:0 0 8px; }
+p { color:var(--muted); margin-top:6px; }
+.grid {
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px; margin:20px 0;
+}
+.card,.panel {
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:12px; padding:18px;
+}
+.metric { color:var(--muted); font-size:13px; }
+.value { font-size:27px; font-weight:bold; margin-top:6px; }
+.layout {
+  display:grid; grid-template-columns:1.1fr .9fr; gap:18px;
+}
+h2 { font-size:18px; margin:0 0 14px; }
+textarea {
+  width:100%; min-height:260px; resize:vertical;
+  background:#09101d; border:1px solid var(--border);
+  border-radius:8px; padding:14px; color:var(--text);
+  font-family:Consolas,monospace; font-size:13px;
+}
+button {
+  border:1px solid var(--border); background:#1b2a41;
+  color:var(--text); padding:10px 13px; border-radius:7px;
+  cursor:pointer; font-weight:bold; margin:5px 4px 5px 0;
+}
+button:hover { border-color:var(--green); }
+button.primary { background:#16795f; border-color:#16795f; }
+button.danger { color:#ff9aaa; }
+.actions { margin-top:12px; }
+.small { font-size:12px; color:var(--muted); }
+.result-empty {
+  border:1px dashed var(--border); border-radius:8px;
+  padding:24px 12px; text-align:center; color:var(--muted);
+}
+.finding {
+  border:1px solid var(--border); border-left:4px solid var(--blue);
+  padding:13px; border-radius:7px; margin-bottom:10px;
+  overflow-wrap:anywhere;
+}
+.finding.CRITICAL { border-left-color:var(--red); }
+.finding.HIGH { border-left-color:#ff9f43; }
+.finding.MEDIUM { border-left-color:var(--yellow); }
+.finding.LOW { border-left-color:var(--blue); }
+.finding h3 { margin:0 0 6px; font-size:15px; }
+.finding p { font-size:13px; margin:6px 0; }
+.tag {
+  display:inline-block; font-size:11px; font-weight:bold;
+  padding:3px 7px; border-radius:5px; background:#24344b;
+  margin-right:5px;
+}
+.evidence {
+  background:#09101d; padding:9px; border-radius:5px;
+  font-family:Consolas,monospace; font-size:12px;
+  white-space:pre-wrap; overflow-wrap:anywhere; color:#c7d6eb;
+}
+.section { margin-top:20px; }
+.history-item {
+  padding:11px 0; border-bottom:1px solid var(--border);
+  display:flex; justify-content:space-between; gap:10px;
+  font-size:13px;
+}
+footer {
+  text-align:center; padding:25px; color:var(--muted);
+  border-top:1px solid var(--border); margin-top:30px;
+  font-size:12px;
+}
+.notice {
+  background:#172a35; border:1px solid #286e60;
+  color:#b7f5df; padding:12px; border-radius:8px;
+  font-size:13px; margin:15px 0;
+}
+@media(max-width:800px) {
+  .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .layout { grid-template-columns:1fr; }
+}
+@media(max-width:450px) {
+  .grid { grid-template-columns:1fr 1fr; }
+  h1 { font-size:25px; }
+  main { padding:20px 12px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">🛡️ CyberSentry <span>AI</span></div>
+  <div class="badge">LOCAL LOG ANALYSIS</div>
+</header>
+
+<main>
+  <section class="intro">
+    <h1>Security Operations Dashboard</h1>
+    <p>Analyze security logs, identify suspicious patterns, and understand potential threats.</p>
+    <div class="notice">
+      Privacy-first prototype: analysis runs in your browser using local detection rules.
+      QVAC on-device AI inference is not connected. Results are indicators, not proof of an attack.
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <div class="metric">Lines Analyzed</div>
+      <div class="value" id="metricLines">0</div>
+    </div>
+    <div class="card">
+      <div class="metric">Findings</div>
+      <div class="value" id="metricFindings">0</div>
+    </div>
+    <div class="card">
+      <div class="metric">High / Critical</div>
+      <div class="value" id="metricSevere">0</div>
+    </div>
+    <div class="card">
+      <div class="metric">Cases Saved</div>
+      <div class="value" id="metricCases">0</div>
+    </div>
+  </section>
+
+  <section class="layout">
+    <div class="panel">
+      <h2>Log Input</h2>
+      <p>Paste server, authentication, application, or security logs below.</p>
+
+      <textarea id="logInput" spellcheck="false"
+        placeholder="Paste your security logs here..."></textarea>
+
+      <div class="actions">
+        <button id="sampleAuth">Sample: Login Failures</button>
+        <button id="sampleWeb">Sample: Web Attacks</button>
+        <button id="sampleNormal">Sample: Normal Logs</button>
+      </div>
+      <div class="actions">
+        <button class="primary" id="analyzeBtn">Analyze Logs</button>
+        <button id="clearInputBtn">Clear Input</button>
+        <button id="exportBtn">Export JSON</button>
+      </div>
+      <p class="small">Use synthetic samples first. Avoid pasting passwords, access tokens, or personal data.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Analysis Results</h2>
+      <div id="results" aria-live="polite">
+        <div class="result-empty">
+          <div style="font-size:28px">🔎</div>
+          Your findings will appear here after analysis.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel section">
+    <h2>Recommended Next Steps</h2>
+    <div id="recommendations">
+      <p>Analyze a log sample to receive recommendations based on detected patterns.</p>
+    </div>
+  </section>
+
+  <section class="panel section">
+    <h2>Local Case History</h2>
+    <p class="small">Cases are stored in this browser on this device.</p>
+    <div id="history">
+      <p>No cases analyzed yet.</p>
+    </div>
+    <button id="clearHistoryBtn" class="danger">Clear Case History</button>
+  </section>
+</main>
+
+<footer>
+  CyberSentry AI · Offline-first cybersecurity prototype · Rule-based analysis only
+</footer>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+let latestReport = null;
+let historyCases = [];
+
+try {
+  const stored = localStorage.getItem("cyberSentryHistory");
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    if (Array.isArray(parsed)) historyCases = parsed;
+  }
+} catch (error) {
+  historyCases = [];
+}
+
+const samples = {
+  auth: [
+    'Oct 23 10:15:01 server sshd[101]: Failed password for admin from 198.51.100.23 port 5011 ssh2',
+    'Oct 23 10:15:03 server sshd[102]: Failed password for admin from 198.51.100.23 port 5012 ssh2',
+    'Oct 23 10:15:05 server sshd[103]: Failed password for root from 198.51.100.23 port 5013 ssh2',
+    'Oct 23 10:15:07 server sshd[104]: Failed password for user from 198.51.100.23 port 5014 ssh2',
+    'Oct 23 10:15:09 server sshd[105]: Failed password for admin from 198.51.100.23 port 5015 ssh2'
+  ].join("\n"),
+
+  web: [
+    '10.0.0.8 - - "GET /search?q=%27%20OR%201=1-- HTTP/1.1" 400',
+    '10.0.0.9 - - "GET /page?name=<script>alert(1)<%2Fscript%3E HTTP/1.1" 400',
+    '10.0.0.10 - - "GET /../../../../etc/passwd HTTP/1.1" 403',
+    '10.0.0.11 - - "POST /login HTTP/1.1" 401'
+  ].join("\n"),
+
+  normal: [
+    'Oct 23 10:20:01 server sshd[201]: Accepted publickey for deploy from 192.0.2.10 port 5033 ssh2',
+    '10.0.0.5 - - "GET /health HTTP/1.1" 200',
+    '10.0.0.5 - - "GET /assets/app.css HTTP/1.1" 200',
+    '10.0.0.5 - - "GET /dashboard HTTP/1.1" 200'
+  ].join("\n")
+};
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[char]));
+}
+
+function detectFindings(lines) {
+  const findings = [];
+
+  const rules = [
+    {
+      id: "AUTH-001",
+      title: "Repeated Failed Login Attempts",
+      severity: "HIGH",
+      pattern: /failed password|authentication failure|login failed|invalid password/i,
+      explanation: "Failed authentication messages may indicate repeated login attempts. This alone does not prove brute-force activity.",
+      recommendation: "Review authentication logs, check whether attempts target one account or source, and enforce MFA and rate limiting where appropriate."
+    },
+    {
+      id: "WEB-001",
+      title: "Possible SQL Injection",
+      severity: "HIGH",
+      pattern: /(\bunion\s+select\b)|(\bor\s+['"]?\d+['"]?\s*=\s*['"]?\d+)|(\bselect\b.+\bfrom\b)|(%27\s*or\b)|(%27%20or%20\d+\s*=\s*\d+)|(--\s*$)/i,
+      explanation: "The log contains text commonly associated with SQL injection probes. The log does not establish whether the input reached a database or succeeded.",
+      recommendation: "Review the request and application response. Use parameterized queries, input validation, and appropriate monitoring."
+    },
+    {
+      id: "WEB-002",
+      title: "Possible Cross-Site Scripting (XSS)",
+      severity: "MEDIUM",
+      pattern: /<script\b|%3cscript|javascript\s*:/i,
+      explanation: "The request contains script-like content that may be an XSS probe. It could also be harmless test input.",
+      recommendation: "Check how the application handles and renders the input. Apply context-aware output encoding and a suitable Content Security Policy."
+    },
+    {
+      id: "WEB-003",
+      title: "Possible Path Traversal",
+      severity: "HIGH",
+      pattern: /(\.\.\/|\.\.\\|%2e%2e(%2f|%5c))/i,
+      explanation: "The request contains path traversal-like sequences that may be intended to access files outside an allowed directory.",
+      recommendation: "Review the request and access logs. Normalize and validate file paths and restrict file access to approved directories."
+    },
+    {
+      id: "AUTH-002",
+      title: "Access Denied or Unauthorized Response",
+      severity: "LOW",
+      pattern: /\b(401|403)\b/,
+      explanation: "An unauthorized or forbidden response was recorded. These are common in normal systems and need context.",
+      recommendation: "Check whether the response matches expected access controls. Look for unusual repetition or related suspicious requests."
+    },
+    {
+      id: "SYS-001",
+      title: "Possible Privileged Account Activity",
+      severity: "MEDIUM",
+      pattern: /\b(root|administrator|admin)\b/i,
+      explanation: "The log mentions a commonly privileged account name. This is a review signal, not proof of misuse.",
+      recommendation: "Verify that the activity was expected and that privileged accounts follow least-privilege and MFA policies."
+    }
+  ];
+
+  const loginFailures = lines.filter(line =>
+    /failed password|authentication failure|login failed|invalid password/i.test(line)
+  );
+
+  if (loginFailures.length >= 3) {
+    findings.push({
+      id: "AUTH-003",
+      title: "Multiple Authentication Failures",
+      severity: "CRITICAL",
+      count: loginFailures.length,
+      explanation: "Multiple failed authentication messages appear in this input. They may reflect a password attack, a misconfigured service, or a user repeatedly entering incorrect credentials.",
+      evidence: loginFailures.slice(0, 3),
+      recommendation: "Check source addresses, affected accounts, timestamps, and successful logins around the same period. Apply rate limiting and MFA where appropriate."
+    });
+  }
+
+  for (const rule of rules) {
+    const matches = lines.filter(line => rule.pattern.test(line));
+
+    if (matches.length > 0) {
+      findings.push({
+        id: rule.id,
+        title: rule.title,
+        severity: rule.severity,
+        count: matches.length,
+        explanation: rule.explanation,
+        evidence: matches.slice(0, 3),
+        recommendation: rule.recommendation
+      });
+    }
+  }
+
+  const unique = [];
+  const seen = new Set();
+
+  for (const finding of findings) {
+    if (!seen.has(finding.id)) {
+      seen.add(finding.id);
+      unique.push(finding);
+    }
+  }
+
+  const rank = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
+  unique.sort((a, b) => rank[b.severity] - rank[a.severity]);
+
+  return unique;
+}
+
+function renderResults(report) {
+  const container = $("results");
+
+  if (!report.findings.length) {
+    container.innerHTML =
+      '<div class="result-empty">No matching suspicious patterns detected by the current rules.<br><br>This does not guarantee that the logs are safe.</div>';
+    return;
+  }
+
+  container.innerHTML = report.findings.map(finding => `
+    <article class="finding ${escapeHTML(finding.severity)}">
+      <h3>${escapeHTML(finding.title)}</h3>
+      <span class="tag">${escapeHTML(finding.severity)}</span>
+      <span class="tag">${escapeHTML(finding.id)}</span>
+      <span class="tag">${finding.count} matching line(s)</span>
+      <p>${escapeHTML(finding.explanation)}</p>
+      <p><strong>Recommended action:</strong> ${escapeHTML(finding.recommendation)}</p>
+      <p><strong>Evidence sample:</strong></p>
+      <div class="evidence">${finding.evidence.map(escapeHTML).join("\n")}</div>
+    </article>
+  `).join("");
+}
+
+function renderRecommendations(report) {
+  const container = $("recommendations");
+
+  if (!report.findings.length) {
+    container.innerHTML = "<p>No rule matches were found. Validate the log source and time range, and remember that this prototype checks only a limited set of patterns.</p>";
+    return;
+  }
+
+  container.innerHTML = "<ol>" + report.findings.map(finding =>
+    `<li>${escapeHTML(finding.recommendation)}</li>`
+  ).join("") + "</ol>";
+}
+
+function updateMetrics(report) {
+  $("metricLines").textContent = report ? report.lineCount : 0;
+  $("metricFindings").textContent = report ? report.findings.length : 0;
+  $("metricSevere").textContent = report
+    ? report.findings.filter(f => f.severity === "CRITICAL" || f.severity === "HIGH").length
+    : 0;
+  $("metricCases").textContent = historyCases.length;
+}
+
+function saveHistory(report) {
+  historyCases.unshift({
+    id: Date.now(),
+    date: new Date().toLocaleString(),
+    lineCount: report.lineCount,
+    findingCount: report.findings.length,
+    findings: report.findings.map(f => ({
+      id: f.id,
+      title: f.title,
+      severity: f.severity,
+      count: f.count
+    })),
+    logText: report.logText
+  });
+
+  historyCases = historyCases.slice(0, 20);
+
+  try {
+    localStorage.setItem("cyberSentryHistory", JSON.stringify(historyCases));
+  } catch (error) {
+    console.warn("Could not save case history in this browser.", error);
+  }
+
+  renderHistory();
+  updateMetrics(report);
+}
+
+function renderHistory() {
+  const container = $("history");
+
+  if (!historyCases.length) {
+    container.innerHTML = "<p>No cases analyzed yet.</p>";
+    $("metricCases").textContent = "0";
+    return;
+  }
+
+  container.innerHTML = historyCases.map(item => `
+    <div class="history-item">
+      <div>
+        <strong>${escapeHTML(item.date)}</strong><br>
+        <span class="small">${item.lineCount} lines · ${item.findingCount} finding(s)</span>
+      </div>
+      <button data-case-id="${item.id}">View</button>
+    </div>
+  `).join("");
+
+  $("metricCases").textContent = historyCases.length;
+}
+
+function analyzeLogs() {
+  const logText = $("logInput").value;
+  const trimmed = logText.trim();
+
+  if (!trimmed) {
+    $("results").innerHTML = '<div class="result-empty">Paste logs or load a sample before analyzing.</div>';
+    return;
+  }
+
+  const lines = trimmed.split(/\r?\n/).filter(line => line.trim() !== "");
+  const findings = detectFindings(lines);
+
+  latestReport = {
+    timestamp: new Date().toISOString(),
+    lineCount: lines.length,
+    findings,
+    logText: trimmed,
+    method: "Local deterministic pattern matching",
+    limitations: "Limited rule set; not an AI model; findings require human verification."
+  };
+
+  renderResults(latestReport);
+  renderRecommendations(latestReport);
+  updateMetrics(latestReport);
+  saveHistory(latestReport);
+}
+
+function loadSample(name) {
+  $("logInput").value = samples[name];
+  $("logInput").focus();
+}
+
+function exportJSON() {
+  if (!latestReport) {
+    alert("Analyze some logs before exporting a report.");
+    return;
+  }
+
+  const blob = new Blob(
+    [JSON.stringify(latestReport, null, 2)],
+    { type: "application/json" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "cybersentry-report.json";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+$("sampleAuth").addEventListener("click", () => loadSample("auth"));
+$("sampleWeb").addEventListener("click", () => loadSample("web"));
+$("sampleNormal").addEventListener("click", () => loadSample("normal"));
+$("analyzeBtn").addEventListener("click", analyzeLogs);
+$("exportBtn").addEventListener("click", exportJSON);
+
+$("clearInputBtn").addEventListener("click", () => {
+  $("logInput").value = "";
+  $("logInput").focus();
+});
+
+$("clearHistoryBtn").addEventListener("click", () => {
+  if (!confirm("Clear all saved CyberSentry case history from this browser?")) return;
+
+  historyCases = [];
+
+  try {
+    localStorage.removeItem("cyberSentryHistory");
+  } catch (error) {
+    console.warn("Could not clear browser storage.", error);
+  }
+
+  renderHistory();
+  updateMetrics(latestReport);
+});
+
+$("history").addEventListener("click", event => {
+  const button = event.target.closest("button[data-case-id]");
+  if (!button) return;
+
+  const item = historyCases.find(c => c.id === Number(button.dataset.caseId));
+  if (!item) return;
+
+  $("logInput").value = item.logText;
+  analyzeLogs();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+renderHistory();
+updateMetrics(null);
+</script>
+</body>
+</html>
