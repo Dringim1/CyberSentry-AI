@@ -510,10 +510,12 @@ function analyzeLogs() {
     }
   }
 
-  // Rule 2: SQL injection indicators.
+   // Rule 2: SQL injection indicators.
   const sqlLines = lines.filter(line =>
-    /(\bunion\b.{0,30}\bselect\b|\bor\b\s+['"]?\d+['"]?\s*=\s*['"]?\d+|'\s*or\s*'[^']*'\s*=\s*'|--\s|%27|%20or%20\d+\s*=\s*\d+|information_schema)/i.test(decodeURIComponent(line.replace(/%(?![0-9a-f]{2})/gi, "%25")))
-
+    /(\bunion\b.{0,30}\bselect\b|\bor\b\s+['"]?\d+['"]?\s*=\s*['"]?\d+|'\s*or\s*'[^']*'\s*=\s*'|--\s|%27|%20or%20\d+\s*=\s*\d+|information_schema)/i.test(
+      decodeURIComponent(line.replace(/%(?![0-9a-f]{2})/gi, "%25"))
+    )
+  );
   if (sqlLines.length) {
     addFinding(
       "possible-sqli",
