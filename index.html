@@ -3,487 +3,824 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CyberSentry AI | Security Log Analyzer</title>
+<title>CyberSentry AI - Local Security Workbench</title>
+
 <style>
 :root {
-  --bg:#0b1120; --panel:#131d30; --border:#26354c;
-  --text:#e8eef8; --muted:#96a7c0; --green:#38d9a9;
-  --red:#ff647c; --yellow:#ffd166; --blue:#69a7ff;
+  --bg: #0a0f18;
+  --panel: #111a28;
+  --panel2: #172235;
+  --border: #28374d;
+  --text: #edf4ff;
+  --muted: #91a2ba;
+  --green: #43e0a0;
+  --blue: #6cb8ff;
+  --red: #ff647c;
+  --orange: #ffb454;
+  --yellow: #f3dc70;
 }
-* { box-sizing:border-box; }
+
+* { box-sizing: border-box; }
+
 body {
-  margin:0; background:var(--bg); color:var(--text);
-  font-family:Arial,Helvetica,sans-serif; line-height:1.5;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.5;
 }
+
 header {
-  padding:22px 5%; border-bottom:1px solid var(--border);
-  display:flex; justify-content:space-between; align-items:center;
-  flex-wrap:wrap; gap:12px;
+  padding: 24px 5%;
+  border-bottom: 1px solid var(--border);
+  background: #0d1420;
 }
-.brand { font-size:23px; font-weight:bold; }
-.brand span { color:var(--green); }
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -.5px;
+}
+
+.brand span { color: var(--green); }
+
+.subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
 .badge {
-  border:1px solid #286e60; color:var(--green);
-  padding:6px 10px; border-radius:20px; font-size:12px;
+  display: inline-block;
+  border: 1px solid #267b5d;
+  background: #102d26;
+  color: var(--green);
+  padding: 6px 11px;
+  border-radius: 20px;
+  font-size: 12px;
 }
-main { max-width:1200px; margin:auto; padding:28px 20px; }
-.intro { margin-bottom:24px; }
-h1 { font-size:30px; margin:0 0 8px; }
-p { color:var(--muted); margin-top:6px; }
-.grid {
-  display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:14px; margin:20px 0;
+
+main {
+  max-width: 1250px;
+  margin: auto;
+  padding: 26px 20px 50px;
 }
-.card,.panel {
-  background:var(--panel); border:1px solid var(--border);
-  border-radius:12px; padding:18px;
-}
-.metric { color:var(--muted); font-size:13px; }
-.value { font-size:27px; font-weight:bold; margin-top:6px; }
-.layout {
-  display:grid; grid-template-columns:1.1fr .9fr; gap:18px;
-}
-h2 { font-size:18px; margin:0 0 14px; }
-textarea {
-  width:100%; min-height:260px; resize:vertical;
-  background:#09101d; border:1px solid var(--border);
-  border-radius:8px; padding:14px; color:var(--text);
-  font-family:Consolas,monospace; font-size:13px;
-}
-button {
-  border:1px solid var(--border); background:#1b2a41;
-  color:var(--text); padding:10px 13px; border-radius:7px;
-  cursor:pointer; font-weight:bold; margin:5px 4px 5px 0;
-}
-button:hover { border-color:var(--green); }
-button.primary { background:#16795f; border-color:#16795f; }
-button.danger { color:#ff9aaa; }
-.actions { margin-top:12px; }
-.small { font-size:12px; color:var(--muted); }
-.result-empty {
-  border:1px dashed var(--border); border-radius:8px;
-  padding:24px 12px; text-align:center; color:var(--muted);
-}
-.finding {
-  border:1px solid var(--border); border-left:4px solid var(--blue);
-  padding:13px; border-radius:7px; margin-bottom:10px;
-  overflow-wrap:anywhere;
-}
-.finding.CRITICAL { border-left-color:var(--red); }
-.finding.HIGH { border-left-color:#ff9f43; }
-.finding.MEDIUM { border-left-color:var(--yellow); }
-.finding.LOW { border-left-color:var(--blue); }
-.finding h3 { margin:0 0 6px; font-size:15px; }
-.finding p { font-size:13px; margin:6px 0; }
-.tag {
-  display:inline-block; font-size:11px; font-weight:bold;
-  padding:3px 7px; border-radius:5px; background:#24344b;
-  margin-right:5px;
-}
-.evidence {
-  background:#09101d; padding:9px; border-radius:5px;
-  font-family:Consolas,monospace; font-size:12px;
-  white-space:pre-wrap; overflow-wrap:anywhere; color:#c7d6eb;
-}
-.section { margin-top:20px; }
-.history-item {
-  padding:11px 0; border-bottom:1px solid var(--border);
-  display:flex; justify-content:space-between; gap:10px;
-  font-size:13px;
-}
-footer {
-  text-align:center; padding:25px; color:var(--muted);
-  border-top:1px solid var(--border); margin-top:30px;
-  font-size:12px;
-}
+
 .notice {
-  background:#172a35; border:1px solid #286e60;
-  color:#b7f5df; padding:12px; border-radius:8px;
-  font-size:13px; margin:15px 0;
+  background: #2b2315;
+  border: 1px solid #6d5124;
+  color: #ffe0a4;
+  padding: 13px 16px;
+  border-radius: 9px;
+  margin-bottom: 22px;
+  font-size: 13px;
 }
-@media(max-width:800px) {
-  .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .layout { grid-template-columns:1fr; }
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
 }
-@media(max-width:450px) {
-  .grid { grid-template-columns:1fr 1fr; }
-  h1 { font-size:25px; }
-  main { padding:20px 12px; }
+
+.metric, .card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.metric { padding: 17px; }
+
+.metric-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.metric-value {
+  font-size: 27px;
+  font-weight: 750;
+  margin-top: 6px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, .8fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.card { padding: 20px; margin-bottom: 18px; }
+
+h2 {
+  font-size: 17px;
+  margin: 0 0 6px;
+}
+
+.description {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 16px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 230px;
+  resize: vertical;
+  background: #080e17;
+  color: #c9f7e1;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 14px;
+  font: 12px/1.7 Consolas, monospace;
+  outline: none;
+}
+
+textarea:focus {
+  border-color: var(--green);
+}
+
+button {
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  border-radius: 7px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+button:hover { border-color: var(--green); }
+
+button.primary {
+  background: var(--green);
+  border-color: var(--green);
+  color: #071710;
+}
+
+button.danger {
+  color: #ff9aaa;
+  border-color: #6b3542;
+}
+
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.status {
+  margin-top: 13px;
+  font-size: 12px;
+  color: var(--muted);
+  min-height: 20px;
+}
+
+.finding {
+  border: 1px solid var(--border);
+  background: #0c1420;
+  padding: 14px;
+  border-radius: 9px;
+  margin-top: 12px;
+}
+
+.finding h3 {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.finding p {
+  margin: 7px 0;
+  font-size: 13px;
+  color: #c3d0e2;
+  overflow-wrap: anywhere;
+}
+
+.severity {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 7px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.CRITICAL { color: #fff; background: #b92342; }
+.HIGH { color: #fff; background: #a34a24; }
+.MEDIUM { color: #17130a; background: #e7bd4e; }
+.LOW { color: #062015; background: #65d6a2; }
+.INFO { color: #d9eaff; background: #304e75; }
+
+.evidence {
+  background: #080e17;
+  padding: 10px;
+  border-radius: 6px;
+  font: 11px/1.6 Consolas, monospace;
+  color: #a8d5ff;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.empty {
+  color: var(--muted);
+  text-align: center;
+  padding: 24px 10px;
+  font-size: 13px;
+}
+
+.history-item {
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.history-item:last-child { border-bottom: 0; }
+
+.history-title {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.history-meta {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+footer {
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+  padding: 24px 15px;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 420px) {
+  .metrics { grid-template-columns: 1fr 1fr; }
+  main { padding: 16px 12px 30px; }
+  .card { padding: 14px; }
 }
 </style>
 </head>
-<body>
 
+<body>
 <header>
-  <div class="brand">🛡️ CyberSentry <span>AI</span></div>
-  <div class="badge">LOCAL LOG ANALYSIS</div>
+  <div class="header-row">
+    <div>
+      <div class="brand">CyberSentry <span>AI</span></div>
+      <div class="subtitle">Local Security Workbench | Offline-first prototype</div>
+    </div>
+    <div class="badge">LOCAL MODE | NO CLOUD AI</div>
+  </div>
 </header>
 
 <main>
-  <section class="intro">
-    <h1>Security Operations Dashboard</h1>
-    <p>Analyze security logs, identify suspicious patterns, and understand potential threats.</p>
-    <div class="notice">
-      Privacy-first prototype: analysis runs in your browser using local detection rules.
-      QVAC on-device AI inference is not connected. Results are indicators, not proof of an attack.
+  <div class="notice">
+    <strong>Prototype status:</strong> This version uses transparent, local detection rules.
+    Optional local QVAC explanations are available when the local QVAC server is running. Findings are indicators for investigation, not proof
+    that an attack occurred.
+  </div>
+
+  <section class="metrics">
+    <div class="metric">
+      <div class="metric-label">LINES ANALYZED</div>
+      <div class="metric-value" id="lineCount">0</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">FINDINGS</div>
+      <div class="metric-value" id="findingCount">0</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">HIGHEST SEVERITY</div>
+      <div class="metric-value" id="highestSeverity" style="font-size:19px">NONE</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">SAVED CASES</div>
+      <div class="metric-value" id="caseCount">0</div>
     </div>
   </section>
 
-  <section class="grid">
-    <div class="card">
-      <div class="metric">Lines Analyzed</div>
-      <div class="value" id="metricLines">0</div>
-    </div>
-    <div class="card">
-      <div class="metric">Findings</div>
-      <div class="value" id="metricFindings">0</div>
-    </div>
-    <div class="card">
-      <div class="metric">High / Critical</div>
-      <div class="value" id="metricSevere">0</div>
-    </div>
-    <div class="card">
-      <div class="metric">Cases Saved</div>
-      <div class="value" id="metricCases">0</div>
-    </div>
-  </section>
+  <div class="layout">
+    <section>
+      <div class="card">
+        <h2>Log Analysis</h2>
+        <p class="description">
+          Paste authentication logs, web server logs, or other text-based security events.
+          Analysis runs locally in this browser.
+        </p>
 
-  <section class="layout">
-    <div class="panel">
-      <h2>Log Input</h2>
-      <p>Paste server, authentication, application, or security logs below.</p>
+        <textarea id="logInput" spellcheck="false"
+          placeholder="Paste security logs here..."></textarea>
 
-      <textarea id="logInput" spellcheck="false"
-        placeholder="Paste your security logs here..."></textarea>
+        <div class="button-row">
+          <button onclick="loadSample('auth')">Sample: Login Failures</button>
+          <button onclick="loadSample('web')">Sample: Web Attacks</button>
+          <button onclick="loadSample('normal')">Sample: Routine Logs</button>
+        </div>
 
-      <div class="actions">
-        <button id="sampleAuth">Sample: Login Failures</button>
-        <button id="sampleWeb">Sample: Web Attacks</button>
-        <button id="sampleNormal">Sample: Normal Logs</button>
-      </div>
-      <div class="actions">
-        <button class="primary" id="analyzeBtn">Analyze Logs</button>
-        <button id="clearInputBtn">Clear Input</button>
-        <button id="exportBtn">Export JSON</button>
-      </div>
-      <p class="small">Use synthetic samples first. Avoid pasting passwords, access tokens, or personal data.</p>
-    </div>
+        <div class="button-row">
+          <button class="primary" id="analyzeBtn" onclick="analyzeLogs()">
+            Analyze Logs
+          </button>
+          <button onclick="exportReport()">Export JSON Report</button>
+          <button onclick="clearInput()">Clear Input</button>
+        </div>
 
-    <div class="panel">
-      <h2>Analysis Results</h2>
-      <div id="results" aria-live="polite">
-        <div class="result-empty">
-          <div style="font-size:28px">🔎</div>
-          Your findings will appear here after analysis.
+        <div class="status" id="status" role="status">
+          Ready. Load a sample or paste your own logs.
         </div>
       </div>
-    </div>
-  </section>
 
-  <section class="panel section">
-    <h2>Recommended Next Steps</h2>
-    <div id="recommendations">
-      <p>Analyze a log sample to receive recommendations based on detected patterns.</p>
-    </div>
-  </section>
+      <div class="card">
+        <h2>Analysis Findings</h2>
+        <p class="description">
+          Each finding includes matching evidence and a defensive next step.
+        </p>
+        <div id="results">
+          <div class="empty">No analysis yet. Try one of the sample log sets above.</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Local AI Explanation Assistant</h2>
+        <p class="description">
+          Optional QVAC-powered explanations of existing rule-based findings.
+          AI suggestions are not verified security conclusions.
+        </p>
+        <div class="button-row">
+          <button class="primary" id="explainFindingsBtn" onclick="explainFindings()">
+            Explain Findings
+          </button>
+        </div>
+        <div id="aiStatus" class="status" aria-live="polite">
+          Waiting for an analysis report.
+        </div>
+        <div id="aiResponse" class="empty" style="white-space:pre-wrap">
+          No AI explanation generated yet.
+        </div>
+        <p class="description">
+          AI-generated explanations may be inaccurate. Verify all suggestions
+          independently. Detection results and severity remain controlled by
+          CyberSentry's local rules.
+        </p>
+      </div>
+    </section>
 
-  <section class="panel section">
-    <h2>Local Case History</h2>
-    <p class="small">Cases are stored in this browser on this device.</p>
-    <div id="history">
-      <p>No cases analyzed yet.</p>
-    </div>
-    <button id="clearHistoryBtn" class="danger">Clear Case History</button>
-  </section>
+    <aside>
+      <div class="card">
+        <h2>Investigation Summary</h2>
+        <p class="description">A concise summary of the latest analysis.</p>
+        <div id="summary" class="empty">
+          Run an analysis to generate a summary.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Local Case History</h2>
+        <p class="description">
+          Cases are stored in this browser's local storage on this device.
+        </p>
+        <div id="history"></div>
+        <div class="button-row">
+          <button class="danger" onclick="clearHistory()">Delete All History</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Detection Notes</h2>
+        <p class="description">
+          These rules flag patterns that may deserve attention. A match can be benign,
+          incomplete, or misleading without more context.
+        </p>
+        <ul style="font-size:12px;color:#b9c8dc;padding-left:18px">
+          <li>Repeated authentication failures</li>
+          <li>Possible SQL injection patterns</li>
+          <li>Possible cross-site scripting patterns</li>
+          <li>Path traversal indicators</li>
+          <li>Suspicious command or script indicators</li>
+          <li>Common malware-related keywords</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
 </main>
 
 <footer>
-  CyberSentry AI · Offline-first cybersecurity prototype · Rule-based analysis only
+  CyberSentry AI  |  Local prototype  |  No external threat feeds  |  No cloud requests
+  <br>Do not treat automated findings as a substitute for security investigation.
 </footer>
 
 <script>
 "use strict";
 
-const $ = id => document.getElementById(id);
-
-let latestReport = null;
-let historyCases = [];
-
-try {
-  const stored = localStorage.getItem("cyberSentryHistory");
-  if (stored) {
-    const parsed = JSON.parse(stored);
-    if (Array.isArray(parsed)) historyCases = parsed;
-  }
-} catch (error) {
-  historyCases = [];
-}
-
 const samples = {
-  auth: [
-    'Oct 23 10:15:01 server sshd[101]: Failed password for admin from 198.51.100.23 port 5011 ssh2',
-    'Oct 23 10:15:03 server sshd[102]: Failed password for admin from 198.51.100.23 port 5012 ssh2',
-    'Oct 23 10:15:05 server sshd[103]: Failed password for root from 198.51.100.23 port 5013 ssh2',
-    'Oct 23 10:15:07 server sshd[104]: Failed password for user from 198.51.100.23 port 5014 ssh2',
-    'Oct 23 10:15:09 server sshd[105]: Failed password for admin from 198.51.100.23 port 5015 ssh2'
-  ].join("\n"),
+  auth: `2026-10-23 09:01:11 sshd Failed password for invalid user admin from 203.0.113.45 port 51201 ssh2
+2026-10-23 09:01:13 sshd Failed password for invalid user admin from 203.0.113.45 port 51204 ssh2
+2026-10-23 09:01:16 sshd Failed password for invalid user root from 203.0.113.45 port 51208 ssh2
+2026-10-23 09:01:20 sshd Failed password for user test from 203.0.113.45 port 51210 ssh2
+2026-10-23 09:01:35 sshd Accepted publickey for deploy from 192.0.2.20 port 43011 ssh2`,
 
-  web: [
-    '10.0.0.8 - - "GET /search?q=%27%20OR%201=1-- HTTP/1.1" 400',
-    '10.0.0.9 - - "GET /page?name=<script>alert(1)<%2Fscript%3E HTTP/1.1" 400',
-    '10.0.0.10 - - "GET /../../../../etc/passwd HTTP/1.1" 403',
-    '10.0.0.11 - - "POST /login HTTP/1.1" 401'
-  ].join("\n"),
+  web: `192.0.2.55 - - [23/Oct/2026:10:15:01] "GET /index.html HTTP/1.1" 200
+192.0.2.55 - - [23/Oct/2026:10:15:02] "GET /search?q=%27%20OR%201%3D1-- HTTP/1.1" 400
+192.0.2.55 - - [23/Oct/2026:10:15:03] "GET /download?file=../../etc/passwd HTTP/1.1" 403
+192.0.2.55 - - [23/Oct/2026:10:15:04] "GET /page?name=<script>alert(1)<\/script> HTTP/1.1" 400
+192.0.2.55 - - [23/Oct/2026:10:15:05] "GET /robots.txt HTTP/1.1" 200`,
 
-  normal: [
-    'Oct 23 10:20:01 server sshd[201]: Accepted publickey for deploy from 192.0.2.10 port 5033 ssh2',
-    '10.0.0.5 - - "GET /health HTTP/1.1" 200',
-    '10.0.0.5 - - "GET /assets/app.css HTTP/1.1" 200',
-    '10.0.0.5 - - "GET /dashboard HTTP/1.1" 200'
-  ].join("\n")
+  normal: `2026-10-23 11:00:01 INFO service started successfully
+2026-10-23 11:00:02 INFO health check passed
+2026-10-23 11:01:14 INFO user alice logged in successfully
+2026-10-23 11:02:21 INFO report generated successfully
+2026-10-23 11:03:05 INFO scheduled backup completed`
 };
 
-function escapeHTML(value) {
+let latestReport = null;
+
+const severityRank = {
+  CRITICAL: 5,
+  HIGH: 4,
+  MEDIUM: 3,
+  LOW: 2,
+  INFO: 1
+};
+
+function loadSample(type) {
+  document.getElementById("logInput").value = samples[type];
+  document.getElementById("status").textContent =
+    "Loaded sample: " + type + ". Select Analyze Logs to run local detection.";
+}
+
+function clearInput() {
+  document.getElementById("logInput").value = "";
+  document.getElementById("status").textContent = "Input cleared.";
+}
+
+function analyzeLogs() {
+  const input = document.getElementById("logInput").value;
+  const lines = input.split(/\r?\n/).filter(line => line.trim() !== "");
+
+  if (!lines.length) {
+    document.getElementById("status").textContent =
+      "Please paste logs or load a sample first.";
+    return;
+  }
+
+  const findings = [];
+  const addFinding = (id, severity, title, description, recommendation, matched) => {
+    findings.push({
+      id,
+      severity,
+      title,
+      description,
+      recommendation,
+      evidence: [...new Set(matched)].slice(0, 5),
+      confidence: "Rule match",
+      evidenceCount: matched.length
+    });
+  };
+
+  // Rule 1: Repeated authentication failures, grouped by source address.
+  const failures = lines.filter(line =>
+    /failed password|authentication failure|login failed|invalid password/i.test(line)
+  );
+
+  const bySource = {};
+  for (const line of failures) {
+    const ipMatch = line.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+    const source = ipMatch ? ipMatch[0] : "source not identified";
+    if (!bySource[source]) bySource[source] = [];
+    bySource[source].push(line);
+  }
+
+  for (const [source, matches] of Object.entries(bySource)) {
+    if (matches.length >= 4) {
+      addFinding(
+        "repeated-auth",
+        "HIGH",
+        "Repeated authentication failures",
+        `${matches.length} authentication failure events were detected for source ${source}. This may indicate brute-force activity, but legitimate mistakes or automated systems can also generate repeated failures.`,
+        "Verify the source and account, review surrounding authentication events, check whether any login succeeded afterward, and apply appropriate rate limits or access restrictions if warranted.",
+        matches
+      );
+    } else if (matches.length >= 2) {
+      addFinding(
+        "repeated-auth",
+        "MEDIUM",
+        "Multiple authentication failures",
+        `${matches.length} authentication failures were detected for source ${source}. The available logs are not enough to determine intent.`,
+        "Review the account, source, time window, and nearby successful logins. Check your organization's authentication and lockout policies.",
+        matches
+      );
+    }
+  }
+
+  function safeDecodeURIComponent(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+// Rule 2: SQL injection indicators.
+  const sqlLines = lines.filter(line =>
+    /(\bunion\b.{0,30}\bselect\b|\bor\b\s+['"]?\d+['"]?\s*=\s*['"]?\d+|'\s*or\s*'[^']*'\s*=\s*'|--\s|%27|%20or%20\d+\s*=\s*\d+|information_schema)/i.test(safeDecodeURIComponent(line.replace(/%(?![0-9a-f]{2})/gi, "%25"))))
+
+  if (sqlLines.length) {
+    addFinding(
+      "possible-sqli",
+      "HIGH",
+      "Possible SQL injection pattern",
+      `${sqlLines.length} log line(s) contain patterns commonly associated with SQL injection attempts. A pattern match does not prove that the input reached a vulnerable query or succeeded.`,
+      "Inspect the affected endpoint and request parameters. Use parameterized queries, validate inputs appropriately, and check application/database logs for evidence of successful exploitation.",
+      sqlLines
+    );
+  }
+
+  // Rule 3: Cross-site scripting indicators.
+  const xssLines = lines.filter(line =>
+    /<script\b|javascript\s*:|onerror\s*=|onload\s*=/i.test(line)
+  );
+
+  if (xssLines.length) {
+    addFinding(
+      "possible-xss",
+      "HIGH",
+      "Possible cross-site scripting payload",
+      `${xssLines.length} log line(s) contain script-related input patterns. These may be probes or benign text; exploitability has not been tested.`,
+      "Check how the affected endpoint handles and displays the input. Apply context-appropriate output encoding, safe templating, and suitable content security controls.",
+      xssLines
+    );
+  }
+
+  // Rule 4: Path traversal indicators.
+  const traversalLines = lines.filter(line =>
+    /(\.\.\/|\.\.\\|%2e%2e(%2f|%5c)|\/etc\/passwd|\\windows\\win\.ini)/i.test(line)
+  );
+
+  if (traversalLines.length) {
+    addFinding(
+      "path-traversal",
+      "HIGH",
+      "Possible path traversal attempt",
+      `${traversalLines.length} log line(s) contain path traversal indicators that may target files outside an intended directory.`,
+      "Review file-handling endpoints, normalize and constrain paths to an approved directory, and avoid using untrusted input directly as a filesystem path.",
+      traversalLines
+    );
+  }
+
+  // Rule 5: Potentially suspicious command or script indicators.
+  const commandLines = lines.filter(line =>
+    /powershell.{0,60}(-enc|-encodedcommand|downloadstring)|\bcurl\b.{0,80}\|\s*(sh|bash)\b|\bwget\b.{0,80}\|\s*(sh|bash)\b|\/dev\/tcp\/|nc\s+-e\b/i.test(line)
+  );
+
+  if (commandLines.length) {
+    addFinding(
+      "suspicious-command",
+      "HIGH",
+      "Potentially suspicious command pattern",
+      `${commandLines.length} log line(s) contain command patterns sometimes associated with download-and-execute behavior, encoded commands, or reverse shells. Context is essential.`,
+      "Identify the host and process that generated the event. Preserve relevant logs, verify whether the command executed, and follow your incident-response procedures if unauthorized activity is confirmed.",
+      commandLines
+    );
+  }
+
+  // Rule 6: Malware-related keywords.
+  const malwareLines = lines.filter(line =>
+    /\bransomware\b|\bkeylogger\b|\bmalware detected\b|\btrojan\b|\bcredential dump(?:ing)?\b/i.test(line)
+  );
+
+  if (malwareLines.length) {
+    addFinding(
+      "malware-keywords",
+      "MEDIUM",
+      "Malware-related keyword detected",
+      `${malwareLines.length} log line(s) contain malware-related terms. The rule detects keywords only; it does not scan files or confirm infection.`,
+      "Correlate the event with endpoint security alerts, process telemetry, file hashes, and trusted incident-response procedures before deciding on containment.",
+      malwareLines
+    );
+  }
+
+  findings.sort((a, b) =>
+    severityRank[b.severity] - severityRank[a.severity]
+  );
+
+  const highest = findings.length ? findings[0].severity : "NONE";
+
+  latestReport = {
+    product: "CyberSentry AI",
+    prototypeVersion: "0.1",
+    generatedAt: new Date().toISOString(),
+    mode: "Local rule-based analysis; QVAC not integrated",
+    linesAnalyzed: lines.length,
+    findingCount: findings.length,
+    highestSeverity: highest,
+    findings,
+    limitations: [
+      "Rules can produce false positives and false negatives.",
+      "This prototype does not confirm whether an attack succeeded.",
+      "No external threat intelligence or cloud AI is used.",
+      "QVAC local inference is not integrated in this version."
+    ]
+  };
+
+  document.getElementById("lineCount").textContent = lines.length;
+  document.getElementById("findingCount").textContent = findings.length;
+  document.getElementById("highestSeverity").textContent = highest;
+  document.getElementById("status").textContent =
+    `Analysis complete: ${lines.length} non-empty lines checked locally.`;
+
+  renderFindings(findings);
+  renderSummary(latestReport);
+  saveCase(latestReport);
+  renderHistory();
+  updateCaseCount();
+}
+
+function renderFindings(findings) {
+  const container = document.getElementById("results");
+
+  if (!findings.length) {
+    container.innerHTML = `
+      <div class="empty">
+        No configured detection rules matched these logs.
+        This does not prove the logs are safe.
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = findings.map((f, index) => `
+    <article class="finding">
+      <span class="severity ${f.severity}">${escapeHtml(f.severity)}</span>
+      <h3>${escapeHtml(f.title)}</h3>
+      <p>${escapeHtml(f.description)}</p>
+      <p><strong>Recommended next step:</strong> ${escapeHtml(f.recommendation)}</p>
+      <p><strong>Evidence:</strong> ${f.evidenceCount} matching line(s); showing up to 5.</p>
+      <div class="evidence">${escapeHtml(f.evidence.join("\n"))}</div>
+      <p><strong>Assessment:</strong> ${escapeHtml(f.confidence)}. This is a rule match, not a calibrated probability.</p>
+    </article>
+  `).join("");
+}
+
+function renderSummary(report) {
+  const summary = document.getElementById("summary");
+
+  if (!report.findingCount) {
+    summary.innerHTML = `
+      <p>No configured detection rules matched ${report.linesAnalyzed} non-empty log lines.</p>
+      <p>Continue with normal monitoring. Absence of a match is not proof of safety.</p>`;
+    return;
+  }
+
+  const counts = {};
+  report.findings.forEach(f => {
+    counts[f.severity] = (counts[f.severity] || 0) + 1;
+  });
+
+  const countText = Object.entries(counts)
+    .map(([severity, count]) => `${severity}: ${count}`)
+    .join("  |  ");
+
+  summary.innerHTML = `
+    <p><strong>${report.findingCount}</strong> finding(s) detected across
+    <strong>${report.linesAnalyzed}</strong> non-empty log lines.</p>
+    <p>Highest rule severity: <span class="severity ${report.highestSeverity}">
+    ${escapeHtml(report.highestSeverity)}</span></p>
+    <p>${escapeHtml(countText)}</p>
+    <p>Prioritize reviewing the evidence and validating each finding against surrounding events.</p>`;
+}
+
+function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
     '"': "&quot;",
     "'": "&#39;"
-  }[char]));
+  })[char]);
 }
 
-function detectFindings(lines) {
-  const findings = [];
-
-  const rules = [
-    {
-      id: "AUTH-001",
-      title: "Repeated Failed Login Attempts",
-      severity: "HIGH",
-      pattern: /failed password|authentication failure|login failed|invalid password/i,
-      explanation: "Failed authentication messages may indicate repeated login attempts. This alone does not prove brute-force activity.",
-      recommendation: "Review authentication logs, check whether attempts target one account or source, and enforce MFA and rate limiting where appropriate."
-    },
-    {
-      id: "WEB-001",
-      title: "Possible SQL Injection",
-      severity: "HIGH",
-      pattern: /(\bunion\s+select\b)|(\bor\s+['"]?\d+['"]?\s*=\s*['"]?\d+)|(\bselect\b.+\bfrom\b)|(%27\s*or\b)|(%27%20or%20\d+\s*=\s*\d+)|(--\s*$)/i,
-      explanation: "The log contains text commonly associated with SQL injection probes. The log does not establish whether the input reached a database or succeeded.",
-      recommendation: "Review the request and application response. Use parameterized queries, input validation, and appropriate monitoring."
-    },
-    {
-      id: "WEB-002",
-      title: "Possible Cross-Site Scripting (XSS)",
-      severity: "MEDIUM",
-      pattern: /<script\b|%3cscript|javascript\s*:/i,
-      explanation: "The request contains script-like content that may be an XSS probe. It could also be harmless test input.",
-      recommendation: "Check how the application handles and renders the input. Apply context-aware output encoding and a suitable Content Security Policy."
-    },
-    {
-      id: "WEB-003",
-      title: "Possible Path Traversal",
-      severity: "HIGH",
-      pattern: /(\.\.\/|\.\.\\|%2e%2e(%2f|%5c))/i,
-      explanation: "The request contains path traversal-like sequences that may be intended to access files outside an allowed directory.",
-      recommendation: "Review the request and access logs. Normalize and validate file paths and restrict file access to approved directories."
-    },
-    {
-      id: "AUTH-002",
-      title: "Access Denied or Unauthorized Response",
-      severity: "LOW",
-      pattern: /\b(401|403)\b/,
-      explanation: "An unauthorized or forbidden response was recorded. These are common in normal systems and need context.",
-      recommendation: "Check whether the response matches expected access controls. Look for unusual repetition or related suspicious requests."
-    },
-    {
-      id: "SYS-001",
-      title: "Possible Privileged Account Activity",
-      severity: "MEDIUM",
-      pattern: /\b(root|administrator|admin)\b/i,
-      explanation: "The log mentions a commonly privileged account name. This is a review signal, not proof of misuse.",
-      recommendation: "Verify that the activity was expected and that privileged accounts follow least-privilege and MFA policies."
-    }
-  ];
-
-  const loginFailures = lines.filter(line =>
-    /failed password|authentication failure|login failed|invalid password/i.test(line)
-  );
-
-  if (loginFailures.length >= 3) {
-    findings.push({
-      id: "AUTH-003",
-      title: "Multiple Authentication Failures",
-      severity: "CRITICAL",
-      count: loginFailures.length,
-      explanation: "Multiple failed authentication messages appear in this input. They may reflect a password attack, a misconfigured service, or a user repeatedly entering incorrect credentials.",
-      evidence: loginFailures.slice(0, 3),
-      recommendation: "Check source addresses, affected accounts, timestamps, and successful logins around the same period. Apply rate limiting and MFA where appropriate."
-    });
-  }
-
-  for (const rule of rules) {
-    const matches = lines.filter(line => rule.pattern.test(line));
-
-    if (matches.length > 0) {
-      findings.push({
-        id: rule.id,
-        title: rule.title,
-        severity: rule.severity,
-        count: matches.length,
-        explanation: rule.explanation,
-        evidence: matches.slice(0, 3),
-        recommendation: rule.recommendation
-      });
-    }
-  }
-
-  const unique = [];
-  const seen = new Set();
-
-  for (const finding of findings) {
-    if (!seen.has(finding.id)) {
-      seen.add(finding.id);
-      unique.push(finding);
-    }
-  }
-
-  const rank = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
-  unique.sort((a, b) => rank[b.severity] - rank[a.severity]);
-
-  return unique;
-}
-
-function renderResults(report) {
-  const container = $("results");
-
-  if (!report.findings.length) {
-    container.innerHTML =
-      '<div class="result-empty">No matching suspicious patterns detected by the current rules.<br><br>This does not guarantee that the logs are safe.</div>';
-    return;
-  }
-
-  container.innerHTML = report.findings.map(finding => `
-    <article class="finding ${escapeHTML(finding.severity)}">
-      <h3>${escapeHTML(finding.title)}</h3>
-      <span class="tag">${escapeHTML(finding.severity)}</span>
-      <span class="tag">${escapeHTML(finding.id)}</span>
-      <span class="tag">${finding.count} matching line(s)</span>
-      <p>${escapeHTML(finding.explanation)}</p>
-      <p><strong>Recommended action:</strong> ${escapeHTML(finding.recommendation)}</p>
-      <p><strong>Evidence sample:</strong></p>
-      <div class="evidence">${finding.evidence.map(escapeHTML).join("\n")}</div>
-    </article>
-  `).join("");
-}
-
-function renderRecommendations(report) {
-  const container = $("recommendations");
-
-  if (!report.findings.length) {
-    container.innerHTML = "<p>No rule matches were found. Validate the log source and time range, and remember that this prototype checks only a limited set of patterns.</p>";
-    return;
-  }
-
-  container.innerHTML = "<ol>" + report.findings.map(finding =>
-    `<li>${escapeHTML(finding.recommendation)}</li>`
-  ).join("") + "</ol>";
-}
-
-function updateMetrics(report) {
-  $("metricLines").textContent = report ? report.lineCount : 0;
-  $("metricFindings").textContent = report ? report.findings.length : 0;
-  $("metricSevere").textContent = report
-    ? report.findings.filter(f => f.severity === "CRITICAL" || f.severity === "HIGH").length
-    : 0;
-  $("metricCases").textContent = historyCases.length;
-}
-
-function saveHistory(report) {
-  historyCases.unshift({
-    id: Date.now(),
-    date: new Date().toLocaleString(),
-    lineCount: report.lineCount,
-    findingCount: report.findings.length,
-    findings: report.findings.map(f => ({
-      id: f.id,
-      title: f.title,
-      severity: f.severity,
-      count: f.count
-    })),
-    logText: report.logText
-  });
-
-  historyCases = historyCases.slice(0, 20);
-
+function getHistory() {
   try {
-    localStorage.setItem("cyberSentryHistory", JSON.stringify(historyCases));
-  } catch (error) {
-    console.warn("Could not save case history in this browser.", error);
+    const data = JSON.parse(localStorage.getItem("cybersentry_cases") || "[]");
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
   }
+}
 
-  renderHistory();
-  updateMetrics(report);
+function saveCase(report) {
+  try {
+    const history = getHistory();
+    history.unshift({
+      id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+      generatedAt: report.generatedAt,
+      linesAnalyzed: report.linesAnalyzed,
+      findingCount: report.findingCount,
+      highestSeverity: report.highestSeverity,
+      findings: report.findings
+    });
+
+    localStorage.setItem(
+      "cybersentry_cases",
+      JSON.stringify(history.slice(0, 12))
+    );
+  } catch {
+    document.getElementById("status").textContent +=
+      " Warning: browser storage is unavailable; case history may not persist.";
+  }
 }
 
 function renderHistory() {
-  const container = $("history");
+  const container = document.getElementById("history");
+  const history = getHistory();
 
-  if (!historyCases.length) {
-    container.innerHTML = "<p>No cases analyzed yet.</p>";
-    $("metricCases").textContent = "0";
+  if (!history.length) {
+    container.innerHTML = '<div class="empty">No saved cases yet.</div>';
     return;
   }
 
-  container.innerHTML = historyCases.map(item => `
+  container.innerHTML = history.map(item => `
     <div class="history-item">
       <div>
-        <strong>${escapeHTML(item.date)}</strong><br>
-        <span class="small">${item.lineCount} lines · ${item.findingCount} finding(s)</span>
+        <div class="history-title">
+          ${escapeHtml(item.highestSeverity)}  |  ${item.findingCount} finding(s)
+        </div>
+        <div class="history-meta">
+          ${escapeHtml(new Date(item.generatedAt).toLocaleString())}
+           |  ${item.linesAnalyzed} line(s)
+        </div>
       </div>
-      <button data-case-id="${item.id}">View</button>
+      <button onclick="openCase('${escapeHtml(item.id)}')">View</button>
     </div>
   `).join("");
-
-  $("metricCases").textContent = historyCases.length;
 }
 
-function analyzeLogs() {
-  const logText = $("logInput").value;
-  const trimmed = logText.trim();
-
-  if (!trimmed) {
-    $("results").innerHTML = '<div class="result-empty">Paste logs or load a sample before analyzing.</div>';
-    return;
-  }
-
-  const lines = trimmed.split(/\r?\n/).filter(line => line.trim() !== "");
-  const findings = detectFindings(lines);
+function openCase(id) {
+  const item = getHistory().find(entry => entry.id === id);
+  if (!item) return;
 
   latestReport = {
-    timestamp: new Date().toISOString(),
-    lineCount: lines.length,
-    findings,
-    logText: trimmed,
-    method: "Local deterministic pattern matching",
-    limitations: "Limited rule set; not an AI model; findings require human verification."
+    product: "CyberSentry AI",
+    prototypeVersion: "0.1",
+    generatedAt: item.generatedAt,
+    mode: "Saved local rule-based case; QVAC not integrated",
+    linesAnalyzed: item.linesAnalyzed,
+    findingCount: item.findingCount,
+    highestSeverity: item.highestSeverity,
+    findings: item.findings,
+    limitations: [
+      "Rules can produce false positives and false negatives.",
+      "This prototype does not confirm whether an attack succeeded.",
+      "QVAC local inference is not integrated in this version."
+    ]
   };
 
-  renderResults(latestReport);
-  renderRecommendations(latestReport);
-  updateMetrics(latestReport);
-  saveHistory(latestReport);
+  document.getElementById("lineCount").textContent = item.linesAnalyzed;
+  document.getElementById("findingCount").textContent = item.findingCount;
+  document.getElementById("highestSeverity").textContent = item.highestSeverity;
+  renderFindings(item.findings);
+  renderSummary(latestReport);
+  document.getElementById("status").textContent =
+    "Opened a saved case. This is a previous analysis, not a new scan.";
 }
 
-function loadSample(name) {
-  $("logInput").value = samples[name];
-  $("logInput").focus();
+function updateCaseCount() {
+  document.getElementById("caseCount").textContent = getHistory().length;
 }
 
-function exportJSON() {
+function clearHistory() {
+  if (!confirm("Delete all locally saved CyberSentry cases from this browser?")) return;
+
+  localStorage.removeItem("cybersentry_cases");
+  renderHistory();
+  updateCaseCount();
+  document.getElementById("status").textContent = "Local case history deleted.";
+}
+
+function exportReport() {
   if (!latestReport) {
-    alert("Analyze some logs before exporting a report.");
+    document.getElementById("status").textContent =
+      "Run an analysis or open a saved case before exporting.";
     return;
   }
 
@@ -493,55 +830,229 @@ function exportJSON() {
   );
 
   const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "cybersentry-report.json";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "cybersentry-report.json";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
   URL.revokeObjectURL(url);
 }
 
-$("sampleAuth").addEventListener("click", () => loadSample("auth"));
-$("sampleWeb").addEventListener("click", () => loadSample("web"));
-$("sampleNormal").addEventListener("click", () => loadSample("normal"));
-$("analyzeBtn").addEventListener("click", analyzeLogs);
-$("exportBtn").addEventListener("click", exportJSON);
+function buildTrustedReportSummary(report) {
+  const findings = Array.isArray(report.findings) ? report.findings : [];
+  const count = Number(report.findingCount);
 
-$("clearInputBtn").addEventListener("click", () => {
-  $("logInput").value = "";
-  $("logInput").focus();
-});
-
-$("clearHistoryBtn").addEventListener("click", () => {
-  if (!confirm("Clear all saved CyberSentry case history from this browser?")) return;
-
-  historyCases = [];
-
-  try {
-    localStorage.removeItem("cyberSentryHistory");
-  } catch (error) {
-    console.warn("Could not clear browser storage.", error);
+  if (count === 0) {
+    return "CYBERSENTRY VERIFIED REPORT\n\nNo configured detection rules matched " +
+      report.linesAnalyzed + " non-empty log lines. This does not prove the logs are safe.";
   }
 
-  renderHistory();
-  updateMetrics(latestReport);
-});
+  const summary = [
+    "CYBERSENTRY VERIFIED REPORT",
+    "",
+    "Finding count: " + count,
+    "Highest severity: " + report.highestSeverity,
+    ""
+  ];
 
-$("history").addEventListener("click", event => {
-  const button = event.target.closest("button[data-case-id]");
-  if (!button) return;
+  findings.forEach((finding, index) => {
+    summary.push(
+      (index + 1) + ". " + finding.severity + ": " + finding.title,
+      finding.description,
+      "Recommended next step: " + finding.recommendation,
+      ""
+    );
+  });
 
-  const item = historyCases.find(c => c.id === Number(button.dataset.caseId));
-  if (!item) return;
+  return summary.join("\n").trim();
+}
 
-  $("logInput").value = item.logText;
-  analyzeLogs();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+function validateAIExplanation(answer, report) {
+  const findings = Array.isArray(report.findings) ? report.findings : [];
+  const count = Number(report.findingCount);
+  const text = answer.toLowerCase();
+
+  if (!Number.isInteger(count) || count < 0) {
+    return { valid: false, reason: "Invalid finding count." };
+  }
+
+  if (count !== findings.length) {
+    return { valid: false, reason: "Finding count does not match the supplied findings." };
+  }
+
+  if (/^\s*[\{\[]/.test(answer) ||
+      /"(linesAnalyzed|findingCount|highestSeverity|findings|evidence|recommendation)"\s*:/.test(answer)) {
+    return { valid: false, reason: "QVAC returned structured report data instead of an explanation." };
+  }
+
+  if (count > 0) {
+    const contradictions = [
+      /no detection rules matched/,
+      /no findings (were )?(found|identified|detected)/,
+      /zero findings/,
+      /nothing detected/,
+      /no issues found/,
+      /system is safe/,
+      /attack (was )?confirmed/
+    ];
+
+    if (contradictions.some(pattern => pattern.test(text))) {
+      return { valid: false, reason: "The AI response contradicts the report." };
+    }
+
+    const countPattern = new RegExp(
+      "\\bfinding count\\s*:\\s*" + count + "\\b"
+    );
+
+    if (!countPattern.test(text)) {
+      return { valid: false, reason: "The AI did not explicitly state the finding count." };
+    }
+
+    if (!text.includes(String(report.highestSeverity).toLowerCase())) {
+      return { valid: false, reason: "The AI omitted the highest severity." };
+    }
+
+    for (const finding of findings) {
+      if (!text.includes(String(finding.title).toLowerCase()) ||
+          !text.includes(String(finding.severity).toLowerCase())) {
+        return { valid: false, reason: "The AI omitted a finding title or severity." };
+      }
+    }
+  } else {
+    if (!/no detection rules matched/.test(text)) {
+      return { valid: false, reason: "The AI did not correctly describe the zero-finding report." };
+    }
+
+    if (!/(does not prove|not proof|cannot conclude|not necessarily safe)/.test(text)) {
+      return { valid: false, reason: "The AI did not explain the limitation of a zero-finding result." };
+    }
+  }
+
+  return { valid: true, reason: "Consistency checks passed." };
+}
+
+async function explainFindings() {
+  const button = document.getElementById("explainFindingsBtn");
+  const status = document.getElementById("aiStatus");
+  const output = document.getElementById("aiResponse");
+
+  if (!latestReport) {
+    status.textContent = "Run an analysis or open a saved case first.";
+    return;
+  }
+
+  const allFindings = Array.isArray(latestReport.findings)
+    ? latestReport.findings
+    : [];
+
+  const report = {
+    linesAnalyzed: latestReport.linesAnalyzed,
+    findingCount: Number(latestReport.findingCount),
+    highestSeverity: latestReport.highestSeverity,
+    findings: allFindings.map(f => ({
+      severity: f.severity,
+      title: f.title,
+      description: f.description,
+      recommendation: f.recommendation,
+      evidence: (f.evidence || []).slice(0, 5).map(line =>
+        String(line).slice(0, 300)
+      )
+    }))
+  };
+
+  const trustedSummary = buildTrustedReportSummary(report);
+
+  if (report.findingCount !== report.findings.length) {
+    output.textContent = trustedSummary +
+      "\n\nAI explanation withheld because the report data is inconsistent.";
+    status.textContent = "Report consistency check failed.";
+    return;
+  }
+
+  button.disabled = true;
+  status.textContent = "Requesting a local QVAC explanation. This may take a little time...";
+  output.textContent = "Generating explanation...";
+
+  let timeoutId;
+
+  try {
+    const controller = new AbortController();
+    timeoutId = setTimeout(() => controller.abort(), 90000);
+
+    const compactReport = {
+      findingCount: report.findingCount,
+      highestSeverity: report.highestSeverity,
+      findings: report.findings.map(f => ({
+        title: f.title,
+        severity: f.severity,
+        description: f.description
+      }))
+    };
+
+    const response = await fetch("http://127.0.0.1:11434/v1/chat/completions", {
+      signal: controller.signal,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "qwen3-600m-inst-q4",
+        messages: [
+          {
+            role: "system",
+            content: "You explain cybersecurity findings in plain language. Treat the supplied report as the only source of facts. Never invent findings or claim an attack succeeded. Do not output JSON, code, or a rewritten report. Write a short explanation in 2 to 4 sentences. /no_think"
+          },
+          {
+            role: "user",
+            content: "Explain these findings for a beginner. Start with a line in this exact format: Finding count: [number]. On the next line, write: Highest severity: [severity]. Replace the bracketed placeholders with the supplied values. Then give a short explanation in plain language. Preserve every finding title and severity. Do not invent findings or claim an attack succeeded. If the count is zero, say exactly: No detection rules matched. This does not prove the logs are safe.\n" +
+              JSON.stringify(compactReport) + "\n/no_think"
+          }
+        ],
+        temperature: 0.2,
+        reasoning_budget: false,
+        max_tokens: 300,
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error("QVAC returned HTTP " + response.status);
+    }
+
+    const data = await response.json();
+    const answer = data.choices?.[0]?.message?.content;
+
+    if (typeof answer !== "string" || !answer.trim()) {
+      throw new Error("QVAC returned an empty or unexpected response.");
+    }
+
+    const validation = validateAIExplanation(answer, report);
+
+    if (validation.valid) {
+      output.textContent = trustedSummary +
+        "\n\nAI-GENERATED COMMENTARY - UNVERIFIED\n\n" + answer.trim();
+      status.textContent = "AI response passed basic consistency checks. Independent verification is still required.";
+    } else {
+      output.textContent = trustedSummary +
+        "\n\nAI EXPLANATION WITHHELD\n\nThe response failed a consistency check: " +
+        validation.reason +
+        "\n\nThe verified rule-based report above remains unchanged.";
+      status.textContent = "AI response rejected. The trusted report is shown instead.";
+    }
+  } catch (error) {
+    output.textContent = trustedSummary +
+      "\n\nAI explanation unavailable. The verified rule-based report above remains unchanged.";
+
+    status.textContent = error.name === "AbortError"
+      ? "QVAC request timed out after 90 seconds. Try again."
+      : "QVAC connection failed: " + error.message;
+  } finally {
+    clearTimeout(timeoutId);
+    button.disabled = false;
+  }
+}
 
 renderHistory();
-updateMetrics(null);
+updateCaseCount();
 </script>
 </body>
 </html>
